@@ -11,29 +11,38 @@ Target platform: Ubuntu 22.04 / 24.04 (WSL also works)
 git clone https://github.com/tusharshenoy/riscv_soc.git
 ```
 
-1. Overview
+Below is a clean, structured **README guide** you can directly use for the repository.
+It focuses purely on **environment setup + build + run**, based on everything we just resolved.
+
+You can copy-paste this into `README.md`.
+
+---
+
+# 1. Overview
 
 The simulation environment requires:
 
-Tool	Purpose
-GCC / G++	C++ compilation
-Make	Build system
-Verilator	RTL → SystemC model
-SystemC 2.3.3	SystemC kernel
-libelf + libbfd	ELF loader support
-Flex / Bison	Verilator build dependency
+| Tool            | Purpose                    |
+| --------------- | -------------------------- |
+| GCC / G++       | C++ compilation            |
+| Make            | Build system               |
+| Verilator       | RTL → SystemC model        |
+| SystemC 2.3.3   | SystemC kernel             |
+| libelf + libbfd | ELF loader support         |
+| Flex / Bison    | Verilator build dependency |
 
 We will build:
 
-ISA simulator library
+* ISA simulator library
+* Verilated RTL model
+* SystemC testbench
+* Run a sample ELF (`basic.elf`)
 
-Verilated RTL model
+---
 
-SystemC testbench
+# 2. Install Base Packages
 
-Run a sample ELF (basic.elf)
-
-2. Install Base Packages
+```bash
 sudo apt update
 sudo apt install -y \
     build-essential \
@@ -50,17 +59,22 @@ sudo apt install -y \
     flex \
     cmake \
     libbfd-dev
-
+```
 
 Sanity check:
 
+```bash
 gcc --version
 make --version
+```
 
-3. Install Verilator
+---
+
+# 3. Install Verilator
 
 Install from source (recommended for SystemC support).
 
+```bash
 git clone https://github.com/verilator/verilator.git
 cd verilator
 git checkout v5.020   # or stable tag
@@ -68,13 +82,19 @@ autoconf
 ./configure
 make -j$(nproc)
 sudo make install
-
+```
 
 Verify:
 
+```bash
 verilator --version
+```
 
-4. Install SystemC 2.3.3
+---
+
+# 4. Install SystemC 2.3.3
+
+```bash
 cd ~
 wget https://github.com/accellera-official/systemc/archive/refs/tags/2.3.3.tar.gz
 tar -xvf 2.3.3.tar.gz
@@ -84,63 +104,79 @@ cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=/opt/systemc
 make -j$(nproc)
 sudo make install
-
+```
 
 Set environment variables:
 
+```bash
 echo 'export SYSTEMC_HOME=/opt/systemc' >> ~/.bashrc
 echo 'export LD_LIBRARY_PATH=/opt/systemc/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
 source ~/.bashrc
-
+```
 
 Verify:
 
+```bash
 ls $SYSTEMC_HOME/include/systemc
+```
 
-5. Clone the SoC Repository
+---
+
+# 5. Clone the SoC Repository
+
+```bash
 cd ~
 git clone https://github.com/ultraembedded/riscv_soc.git --recursive
 cd riscv_soc
-
+```
 
 Verify submodules:
 
+```bash
 ls core/riscv
+```
 
-6. Build the Simulation
+---
+
+# 6. Build the Simulation
 
 Navigate to the testbench:
 
+```bash
 cd tb
-
+```
 
 Build everything:
 
+```bash
 make clean
 make
-
+```
 
 This builds:
 
-ISA simulation library
+* ISA simulation library
+* Verilated RTL model
+* SystemC wrapper
+* Final executable: `build/test.x`
 
-Verilated RTL model
+---
 
-SystemC wrapper
+# 7. Run the Simulation
 
-Final executable: build/test.x
-
-7. Run the Simulation
+```bash
 make run
-
+```
 
 Or manually:
 
+```bash
 ./build/test.x -f ../core/isa_sim/images/basic.elf
-
+```
 
 Expected output:
 
+```
 SystemC 2.3.3-Accellera
 Memory: ...
 Starting from 0x00002000
@@ -150,22 +186,26 @@ Test:
 2. Multiply
 3. Divide
 ...
-
+```
 
 If you see this, the SoC is running correctly.
 
-8. Waveform Generation (Optional)
+---
+
+# 8. Waveform Generation (Optional)
 
 Simulation automatically generates:
 
+```
 verilator.vcd
-
+```
 
 Open with GTKWave:
 
+```bash
 sudo apt install gtkwave
 gtkwave verilator.vcd
-
+```
 
 ## Directories
 
