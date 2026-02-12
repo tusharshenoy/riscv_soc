@@ -2,7 +2,7 @@
 # Variables
 ###############################################################################
 VERILATOR_SRC ?= /usr/share/verilator/include
-SYSTEMC_HOME  ?= /usr/local/systemc-2.3.1
+SYSTEMC_HOME  ?= /opt/systemc
 
 OBJ_DIR      ?= obj/
 EXE_DIR      ?= build/
@@ -23,14 +23,14 @@ INCLUDE_PATH += $(SYSTEMC_HOME)/include
 LIB_PATH     ?=
 LIB_PATH     += ./lib 
 LIB_PATH     += ../core/isa_sim
-LIBS          = -lisa_sim -lsyscverilated -lelf -lbfd
+LIBS = -lisa_sim -lsyscverilated -lelf -lbfd -lpthread
 
 # Flags
-CFLAGS       ?= -fpic -O2
+CFLAGS       ?= -std=c++17 -fpic -O2
 CFLAGS       += $(patsubst %,-I%,$(INCLUDE_PATH))
 CFLAGS       += -DVM_TRACE=1
-LDFLAGS      ?= -O2
-LDFLAGS      += -L$(SYSTEMC_HOME)/lib-linux64 
+LDFLAGS      ?= -std=c++17 -O2
+LDFLAGS      += -L$(SYSTEMC_HOME)/lib
 LDFLAGS      += $(patsubst %,-L%,$(LIB_PATH))
 
 EXTRA_CLEAN_FILES ?=
@@ -38,6 +38,9 @@ EXTRA_CLEAN_FILES ?=
 # SRC / Object list
 src2obj       = $(OBJ_DIR)$(patsubst %$(suffix $(1)),%.o,$(notdir $(1)))
 SRC          ?= $(foreach src,$(SRC_DIR),$(wildcard $(src)/*.cpp))
+# SRC += $(VERILATOR_SRC)/verilated.cpp
+SRC += $(VERILATOR_SRC)/verilated_threads.cpp
+
 OBJ          ?= $(foreach src,$(SRC),$(call src2obj,$(src)))
 
 ###############################################################################

@@ -8,14 +8,14 @@ SRC_DIR          ?= ../soc
 SRC_TYPE         ?= v
 SRC_V_DIR        ?= ../soc
 OUTPUT_SUFFIX    ?=
-SRC              ?= riscv_soc
-NAME             ?= riscv_soc
+SRC              = riscv_soc
+NAME             = riscv_soc
 
 RTL_INCLUDE       = ../core/core/$(CORE)
 RTL_INCLUDE      += ../soc
 
 # Verilator options
-VERILATE_PARAMS  ?= --trace
+VERILATE_PARAMS  ?= --trace -Wno-LATCH -Wno-IGNOREDRETURN
 VERILATOR_OPTS   ?= --pins-sc-uint
 
 TARGETS          ?= $(OUTPUT_DIR)/V$(NAME)

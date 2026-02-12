@@ -2,7 +2,7 @@
 # Variables
 ###############################################################################
 VERILATOR_SRC ?= /usr/share/verilator/include
-SYSTEMC_HOME  ?= /usr/local/systemc-2.3.1
+SYSTEMC_HOME  ?= /opt/systemc
 
 SRC_DIR       ?= verilated/
 OBJ_DIR       ?= obj_verilated/
@@ -24,7 +24,7 @@ CFLAGS       += -fpic
 CFLAGS       += $(patsubst %,-I%,$(INCLUDE_PATH))
 CFLAGS       += $(EXTRA_CFLAGS)
 
-LIB_OPT      ?= $(SYSTEMC_HOME)/lib-linux64/libsystemc.a
+LIB_OPT      ?= -L$(SYSTEMC_HOME)/lib
 
 # SRC / Object list
 src2obj       = $(OBJ_DIR)$(patsubst %$(suffix $(1)),%.o,$(notdir $(1)))
