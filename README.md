@@ -114,14 +114,23 @@ verilator --version
 
 ```bash
 cd ~
-wget https://github.com/accellera-official/systemc/archive/refs/tags/2.3.3.tar.gz
-tar -xvf 2.3.3.tar.gz
+
+wget https://www.accellera.org/images/downloads/standards/systemc/systemc-2.3.3.tar.gz
+tar -xf systemc-2.3.3.tar.gz
 cd systemc-2.3.3
+
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=/opt/systemc
+
+cmake .. \
+  -DCMAKE_INSTALL_PREFIX=/opt/systemc \
+  -DCMAKE_CXX_STANDARD=17 \
+  -DCMAKE_CXX_FLAGS="-O2 -fPIC"
+
 make -j$(nproc)
+
 sudo make install
+
 ```
 
 Set environment variables:
