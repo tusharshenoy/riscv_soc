@@ -68,7 +68,25 @@ gcc --version
 make --version
 ```
 
+Install
+
+```bash
+sudo apt install help2man
+```
+
+Then run make again:
+
+```bash
+make -j$(nproc)
+```
+
 ---
+
+Usually Verilator also needs these:
+
+```bash
+sudo apt install perl python3 make g++ flex bison ccache
+```
 
 # 3. Install Verilator
 
@@ -126,7 +144,7 @@ ls $SYSTEMC_HOME/include/systemc
 
 ```bash
 cd ~
-git clone https://github.com/ultraembedded/riscv_soc.git --recursive
+git clone https://github.com/tusharshenoy/riscv_soc.git
 cd riscv_soc
 ```
 
@@ -251,18 +269,6 @@ Dependancies;
 * System-C (specify path using SYSTEMC_HOME)
 * Verilator (specify path using VERILATOR_SRC)
 
-To build the testbench;
-```
-cd tb
-make 
-````
-
-To run the provided test executable;
-```
-cd tb
-make run
-````
-
 ## FPGA
 
 This project is ready to run on the 'Digilent Artix-7 Arty' FPGA dev board;
@@ -271,6 +277,7 @@ This project is ready to run on the 'Digilent Artix-7 Arty' FPGA dev board;
 
 
 <img width="1600" height="866" alt="image" src="https://github.com/user-attachments/assets/2fa86242-a529-490e-a25e-f2e601b94074" />
+
 
 <img width="1600" height="204" alt="image" src="https://github.com/user-attachments/assets/27493bc8-2d1c-464b-a408-5a54a15ed97f" />
 
