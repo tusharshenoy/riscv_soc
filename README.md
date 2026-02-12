@@ -8,7 +8,7 @@ Target platform: Ubuntu 22.04 / 24.04 (WSL also works)
 ## Cloning
 ```
 # Clone repository and submodules
-git clone https://github.com/tusharshenoy/riscv_soc.git
+git clone https://github.com/tusharshenoy/riscv_soc.git --recursive
 ```
 
 Below is a clean, structured **README guide** you can directly use for the repository.
@@ -161,6 +161,10 @@ ls core/riscv
 Navigate to the testbench:
 
 ```bash
+cd core/isa_sim
+make clean
+make
+
 cd tb
 ```
 
