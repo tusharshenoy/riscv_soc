@@ -1,14 +1,171 @@
 # RISC-V Test SoC
+RISC-V Test SoC – Simulation Setup Guide
 
-Github: http://github.com/ultraembedded/riscv_soc
+This guide explains how to set up a clean Linux environment and run the SystemC + Verilator simulation for the RISC-V Test SoC.
 
-A basic RISC-V test SoC with Timer, UART, SPI and GPIO peripherals...
+Target platform: Ubuntu 22.04 / 24.04 (WSL also works)
 
 ## Cloning
 ```
 # Clone repository and submodules
-git clone https://github.com/ultraembedded/riscv_soc.git --recursive
+git clone https://github.com/tusharshenoy/riscv_soc.git
 ```
+
+1. Overview
+
+The simulation environment requires:
+
+Tool	Purpose
+GCC / G++	C++ compilation
+Make	Build system
+Verilator	RTL → SystemC model
+SystemC 2.3.3	SystemC kernel
+libelf + libbfd	ELF loader support
+Flex / Bison	Verilator build dependency
+
+We will build:
+
+ISA simulator library
+
+Verilated RTL model
+
+SystemC testbench
+
+Run a sample ELF (basic.elf)
+
+2. Install Base Packages
+sudo apt update
+sudo apt install -y \
+    build-essential \
+    gcc \
+    g++ \
+    make \
+    git \
+    python3 \
+    autoconf \
+    perl \
+    libelf-dev \
+    libfl-dev \
+    bison \
+    flex \
+    cmake \
+    libbfd-dev
+
+
+Sanity check:
+
+gcc --version
+make --version
+
+3. Install Verilator
+
+Install from source (recommended for SystemC support).
+
+git clone https://github.com/verilator/verilator.git
+cd verilator
+git checkout v5.020   # or stable tag
+autoconf
+./configure
+make -j$(nproc)
+sudo make install
+
+
+Verify:
+
+verilator --version
+
+4. Install SystemC 2.3.3
+cd ~
+wget https://github.com/accellera-official/systemc/archive/refs/tags/2.3.3.tar.gz
+tar -xvf 2.3.3.tar.gz
+cd systemc-2.3.3
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=/opt/systemc
+make -j$(nproc)
+sudo make install
+
+
+Set environment variables:
+
+echo 'export SYSTEMC_HOME=/opt/systemc' >> ~/.bashrc
+echo 'export LD_LIBRARY_PATH=/opt/systemc/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
+source ~/.bashrc
+
+
+Verify:
+
+ls $SYSTEMC_HOME/include/systemc
+
+5. Clone the SoC Repository
+cd ~
+git clone https://github.com/ultraembedded/riscv_soc.git --recursive
+cd riscv_soc
+
+
+Verify submodules:
+
+ls core/riscv
+
+6. Build the Simulation
+
+Navigate to the testbench:
+
+cd tb
+
+
+Build everything:
+
+make clean
+make
+
+
+This builds:
+
+ISA simulation library
+
+Verilated RTL model
+
+SystemC wrapper
+
+Final executable: build/test.x
+
+7. Run the Simulation
+make run
+
+
+Or manually:
+
+./build/test.x -f ../core/isa_sim/images/basic.elf
+
+
+Expected output:
+
+SystemC 2.3.3-Accellera
+Memory: ...
+Starting from 0x00002000
+
+Test:
+1. Initialised data
+2. Multiply
+3. Divide
+...
+
+
+If you see this, the SoC is running correctly.
+
+8. Waveform Generation (Optional)
+
+Simulation automatically generates:
+
+verilator.vcd
+
+
+Open with GTKWave:
+
+sudo apt install gtkwave
+gtkwave verilator.vcd
+
 
 ## Directories
 
@@ -72,108 +229,14 @@ This project is ready to run on the 'Digilent Artix-7 Arty' FPGA dev board;
 
 ![](doc/arty.png)
 
-A pre-cooked bitstream for this board is located in 'fpga/arty/top.bit'.
+
+<img width="1600" height="866" alt="image" src="https://github.com/user-attachments/assets/2fa86242-a529-490e-a25e-f2e601b94074" />
+
+<img width="1600" height="204" alt="image" src="https://github.com/user-attachments/assets/27493bc8-2d1c-464b-a408-5a54a15ed97f" />
 
 The test project for FPGA uses the [UART to AXI dbg bridge](https://github.com/ultraembedded/cores/tree/master/dbg_bridge) to allow code to be loaded into DDR prior to de-asserting the CPU's reset.
 
 The 'rv32imsu' core (as used in the provided bitstream) is capable of booting Linux;
-
-```
-cd fpga/arty
-
-# Load bitstream onto target
-vivado -mode tcl -source program.tcl
-
-# Load test app into DDR and release reset (change ttyUSB2 as appropriate)
-./run.py -d /dev/ttyUSB2 -f ../../images/linux_riscv_soc.elf 
-
-ELF: Loading 0x80000000 - size 7KB
- |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX| 100.0% 
-ELF: Loading 0x80400000 - size 5368KB
- |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX| 100.0% 
-ELF: Loading 0x81f00000 - size 2KB
- |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX| 100.0% 
-
-[Console]: Enter UART mode
-Booting...
-OF: fdt: Ignoring memory range 0x80000000 - 0x80400000
-Linux version 4.19.0-29706-g1479c35-dirty (build@vm) (gcc version 7.2.0 (GCC)) #531 Sat Mar 16 22:07:04 GMT 2019
-bootconsole [early0] enabled
-initrd not found or empty - disabling initrd
-Zone ranges:
-  Normal   [mem 0x0000000080400000-0x0000081effffffff]
-Movable zone start for each node
-Early memory node ranges
-  node   0: [mem 0x0000000080400000-0x0000000081efffff]
-Initmem setup node 0 [mem 0x0000000080400000-0x0000000081efffff]
-On node 0 totalpages: 6912
-  Normal zone: 54 pages used for memmap
-  Normal zone: 0 pages reserved
-  Normal zone: 6912 pages, LIFO batch:0
-elf_hwcap is 0x1101
-pcpu-alloc: s0 r0 d32768 u32768 alloc=1*32768
-pcpu-alloc: [0] 0 
-Built 1 zonelists, mobility grouping on.  Total pages: 6858
-Kernel command line: console=ttyUL0,1000000 debug
-Dentry cache hash table entries: 4096 (order: 2, 16384 bytes)
-Inode-cache hash table entries: 2048 (order: 1, 8192 bytes)
-Sorting __ex_table...
-Memory: 21992K/27648K available (3664K kernel code, 138K rwdata, 547K rodata, 792K init, 220K bss, 5656K reserved, 0K cma-reserved)
-SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
-NR_IRQS: 0, nr_irqs: 0, preallocated irqs: 0
-irq-xilinx: /soc/interrupt-controller@90000000: num_irq=9, edge=0x100
-clocksource: timer: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 76450417870 ns
-Console: colour dummy device 80x25
-Calibrating delay loop (skipped), value calculated using timer frequency.. 50.00 BogoMIPS (lpj=100000)
-pid_max: default: 32768 minimum: 301
-Mount-cache hash table entries: 1024 (order: 0, 4096 bytes)
-Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes)
-devtmpfs: initialized
-random: get_random_u32 called from bucket_table_alloc.isra.7+0xa0/0x208 with crng_init=0
-clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
-futex hash table entries: 256 (order: -1, 3072 bytes)
-NET: Registered protocol family 16
-random: fast init done
-clocksource: Switched to clocksource timer
-NET: Registered protocol family 2
-tcp_listen_portaddr_hash hash table entries: 512 (order: 0, 4096 bytes)
-TCP established hash table entries: 1024 (order: 0, 4096 bytes)
-TCP bind hash table entries: 1024 (order: 0, 4096 bytes)
-TCP: Hash tables configured (established 1024 bind 1024)
-UDP hash table entries: 256 (order: 0, 4096 bytes)
-UDP-Lite hash table entries: 256 (order: 0, 4096 bytes)
-NET: Registered protocol family 1
-workingset: timestamp_bits=30 max_order=13 bucket_order=0
-NET: Registered protocol family 38
-Block layer SCSI generic (bsg) driver version 0.4 loaded (major 254)
-io scheduler noop registered
-io scheduler deadline registered
-io scheduler cfq registered (default)
-io scheduler mq-deadline registered
-io scheduler kyber registered
-92000000.serial: ttyUL0 at MMIO 0x92000000 (irq = 2, base_baud = 0) is a uartlite
-console [ttyUL0] enabled
-console [ttyUL0] enabled
-bootconsole [early0] disabled
-bootconsole [early0] disabled
-loop: module loaded
-NET: Registered protocol family 10
-Segment Routing with IPv6
-sit: IPv6, IPv4 and MPLS over IPv4 tunneling driver
-NET: Registered protocol family 17
-Freeing unused kernel memory: 792K
-This architecture does not have kernel memory protection.
-Run /init as init process
-init started: BusyBox v1.29.3 (2018-11-13 23:09:48 GMT)
-
-Please press Enter to activate this console. 
-
-BusyBox v1.29.3 (2018-11-13 23:09:48 GMT) built-in shell (ash)
-
-# ls
-bin   dev   etc   init  lib   mnt   proc  sbin  sys   test
-# 
-```
 
 ## Size
 
@@ -485,4 +548,3 @@ bin   dev   etc   init  lib   mnt   proc  sbin  sys   test
 | Bits | Name | Description    |
 | ---- | ---- | -------------- |
 | 31:0 | EDGE | GPIO Interrupt Mode - 1 = edge triggered, 0 = level |
-
