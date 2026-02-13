@@ -10,12 +10,6 @@ Target platform: Ubuntu 22.04 / 24.04 (WSL also works)
 # Clone repository and submodules
 git clone https://github.com/tusharshenoy/riscv_soc.git --recursive
 ```
-
-Below is a clean, structured **README guide** you can directly use for the repository.
-It focuses purely on **environment setup + build + run**, based on everything we just resolved.
-
-You can copy-paste this into `README.md`.
-
 ---
 
 # 1. Overview
