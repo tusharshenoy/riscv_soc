@@ -238,6 +238,101 @@ sudo apt install gtkwave
 gtkwave verilator.vcd
 ```
 
+
+
+---
+## Programming Arty Board using WSL 
+
+## 1️⃣ Install usbipd (One time in Windows – PowerShell as Admin)
+
+```powershell
+winget install usbipd
+```
+
+After install, reboot once.
+
+---
+
+## 2️⃣ List USB Devices (Windows CMD or PowerShell)
+
+```powershell
+usbipd list
+```
+
+You’ll see something like:
+
+```
+BUSID  VID:PID    DEVICE                                                        STATE
+2-1    10C4:EA60  Silicon Labs CP210x USB to UART Bridge                       Not attached
+3-2    0403:6010  FTDI FT2232H Dual USB-UART/FIFO                              Not attached
+```
+
+Note the **BUSID** (example: `2-1`).
+
+---
+
+## 3️⃣ Attach USB to WSL
+
+```powershell
+usbipd bind --busid 2-1
+usbipd attach --wsl --busid 2-1
+```
+
+If you have multiple distros:
+
+```powershell
+usbipd attach --wsl --distribution Ubuntu --busid 2-1
+```
+
+---
+
+## 4️⃣ Verify Inside WSL
+
+Open WSL and check:
+
+```bash
+lsusb
+```
+
+You should see your device.
+
+For serial devices:
+
+```bash
+ls /dev/tty*
+```
+
+Usually appears as:
+
+```
+/dev/ttyUSB0
+```
+
+---
+
+## 5️⃣ Detach When Done
+
+From Windows:
+
+```powershell
+usbipd detach --busid 2-1
+```
+
+---
+
+## ⚠️ Important Notes
+
+* Works only with **WSL2**
+* Windows 11 recommended (Windows 10 works with latest updates)
+* If `/dev/ttyUSB0` doesn’t appear, install inside WSL:
+
+```bash
+sudo apt install usbutils
+```
+
+---
+
+
 ## Directories
 
 | Name                | Contents                                            |
