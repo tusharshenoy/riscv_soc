@@ -156,13 +156,13 @@ Navigate to the testbench:
 cd core/isa_sim
 make clean
 make
-
-cd tb
 ```
 
 Build everything:
 
 ```bash
+
+cd ../tb
 make clean
 make
 ```
