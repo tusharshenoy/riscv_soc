@@ -217,14 +217,14 @@ If you see this, the SoC is running correctly.
 Simulation automatically generates:
 
 ```
-verilator.vcd
+sysc_wave.vcd
 ```
 
 Open with GTKWave:
 
 ```bash
 sudo apt install gtkwave
-gtkwave verilator.vcd
+gtkwave sysc_wave.vcd
 ```
 
 
