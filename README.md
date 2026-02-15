@@ -76,13 +76,15 @@ Install from source (recommended for SystemC support).
 
 ```bash
 cd ~
+rm -rf verilator
 git clone https://github.com/verilator/verilator.git
 cd verilator
-git checkout v5.020   # or stable tag
+git checkout v5.020
 autoconf
-./configure
-make -j$(nproc)
+./configure --prefix=/usr
+make -j2
 sudo make install
+
 ```
 
 Verify:
@@ -121,6 +123,10 @@ Set environment variables:
 ```bash
 echo 'export SYSTEMC_HOME=/opt/systemc' >> ~/.bashrc
 echo 'export LD_LIBRARY_PATH=/opt/systemc/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
+echo 'export SYSTEMC_INCLUDE=/opt/systemc/include' >> ~/.bashrc
+echo 'export SYSTEMC_LIBDIR=/opt/systemc/lib' >> ~/.bashrc
+echo 'export VERILATOR_ROOT=/usr/local/share/verilator' >> ~/.bashrc
+
 source ~/.bashrc
 ```
 
