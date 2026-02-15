@@ -162,7 +162,7 @@ Build everything:
 
 ```bash
 
-cd ../tb
+cd ../../tb
 make clean
 make
 ```
