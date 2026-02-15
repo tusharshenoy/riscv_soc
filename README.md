@@ -52,7 +52,8 @@ sudo apt install -y \
     bison \
     flex \
     cmake \
-    libbfd-dev
+    libbfd-dev \
+    ccache
 ```
 
 Sanity check:
@@ -67,20 +68,7 @@ Install
 ```bash
 sudo apt install help2man
 ```
-
-Then run make again:
-
-```bash
-make -j$(nproc)
-```
-
 ---
-
-Usually Verilator also needs these:
-
-```bash
-sudo apt install perl python3 make g++ flex bison ccache
-```
 
 # 3. Install Verilator
 
