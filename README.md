@@ -75,6 +75,7 @@ sudo apt install help2man
 Install from source (recommended for SystemC support).
 
 ```bash
+cd ~
 git clone https://github.com/verilator/verilator.git
 cd verilator
 git checkout v5.020   # or stable tag
