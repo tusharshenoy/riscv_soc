@@ -1,32 +1,62 @@
-###############################################################################
-## Tool paths
-###############################################################################
-VERILATOR_SRC ?= /usr/share/verilator/include
-SYSTEMC_HOME  ?= /usr/local/systemc-2.3.1
+#==============================================================
+#  Makefile — rv32imsu RISC-V Core Simulation
+#
+#  Targets:
+#    make compile  — compile RTL + testbench with iverilog
+#    make run      — run the simulation with vvp
+#    make wave     — open waveform in GTKWave
+#    make clean    — remove build artefacts
+#
+#  Tools required:
+#    iverilog / vvp   (apt install iverilog)
+#    gtkwave          (apt install gtkwave)  — for 'make wave'
+#==============================================================
 
-TEST_IMAGE ?= ../core/isa_sim/images/basic.elf
+# ---- Source files ------------------------------------------
+RTL_SRCS = \
+    rv32imsu/riscv_defs.v      \
+    rv32imsu/riscv_alu.v       \
+    rv32imsu/riscv_regfile.v   \
+    rv32imsu/riscv_fetch.v     \
+    rv32imsu/riscv_decode.v    \
+    rv32imsu/riscv_exec.v      \
+    rv32imsu/riscv_lsu.v       \
+    rv32imsu/riscv_muldiv.v    \
+    rv32imsu/riscv_csr.v       \
+    rv32imsu/riscv_mmu.v       \
+    rv32imsu/riscv_mmu_arb.v   \
+    rv32imsu/riscv_core.v
 
-CORE       ?= rv32imsu
+TB_SRC  = tb_riscv_core.v
 
-export VERILATOR_SRC
-export SYSTEMC_HOME
+SIM_OUT = sim.out
+VCD_OUT = sim.vcd
 
-###############################################################################
-## Makefile
-###############################################################################
-all: build
+# ---- Targets -----------------------------------------------
 
-build:
-	make -C ../core/isa_sim lib
-	make -f makefile.generate_verilated CORE=$(CORE)
-	make -f makefile.build_verilated
-	make -f makefile.build_sysc_tb
+.PHONY: compile run wave clean
 
+## Step 1 — Compile RTL + testbench
+compile: $(SIM_OUT)
+
+$(SIM_OUT): $(RTL_SRCS) $(TB_SRC)
+	iverilog -g2012 \
+	         -Wall \
+	         -I rv32imsu \
+	         -o $(SIM_OUT) \
+	         $(RTL_SRCS) $(TB_SRC)
+	@echo "-------------------------------"
+	@echo " Compile OK  →  $(SIM_OUT)"
+	@echo "-------------------------------"
+
+## Step 2 — Run simulation
+run: $(SIM_OUT)
+	vvp $(SIM_OUT)
+
+## Step 3 — Open waveform in GTKWave
+wave: $(VCD_OUT)
+	gtkwave $(VCD_OUT) &
+
+## Remove build artefacts
 clean:
-	make -f makefile.generate_verilated  CORE=$(CORE) $@
-	make -f makefile.build_verilated $@
-	make -f makefile.build_sysc_tb $@
-	-rm *.vcd
-
-run: build
-	./build/test.x -f $(TEST_IMAGE)
+	rm -f $(SIM_OUT) $(VCD_OUT) *.hex *.elf
