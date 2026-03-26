@@ -39,7 +39,8 @@ def main(argv):
         if bus_if.bus.uart.in_waiting > 0:
             ch = bus_if.bus.uart.read(1)
             if ch != None:
-                sys.stdout.write(ch)
+                sys.stdout.write(ch.decode('utf-8', errors='ignore'))
+                sys.stdout.flush()
                 sys.stdout.flush()     
         
         ch = stdio_read()
